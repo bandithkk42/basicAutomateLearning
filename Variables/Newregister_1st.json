@@ -1,0 +1,282 @@
+{
+    "customerOrderType": "New Registration",
+    "activity": "1st Submit",
+    "subActivity": "",
+    "productOwner": "3BB",
+    "publicIdType": "idCardNumber",
+    "publicIdValue": "{{thaiID}}",
+    "privateIdType": "referenceNo",
+    "privateIdValue": "TBB-{{privateIdValueKK}}",
+    "staffPrivilegeTransId": "202405131417000001",
+    "chargeType": "Post-paid",
+    "projectDevCd": "PF001:พรอพเพอร์ตี้ เพอเฟก:7500",
+    "note": "SKY Test FBB MultiInstance",
+    "channel": "MyChannel",
+    "reasonCode": "958",
+    "callbackUrl": "http://10.138.21.213:7001/testCall",
+    "orderDate": "{{currentOrderdate}}",
+    "accountInfo": {
+        "caName": "{{randomFirstName}} {{randomLastName}}",
+        "accountType": "R",
+        "accountSubCat": "THA",
+        "birthdate": "05/05/1990",
+        "gender": "F",
+        "citizenship": "Thailand",
+        "branchNumber": "10000",
+        "serviceLevel": "M",
+        "serviceLevelReason": "FBB_N",
+        "mobileNumberContact": "0893647913",
+        "phoneNumberContact": "0257896521",
+        "titleName": "คุณ",
+        "contactFirstName": "{{randomFirstName}}",
+        "contactLastName": "{{randomLastName}}",
+        "contactTitle": "คุณ",
+        "emailContact": "skyfbb@ais.co.th",
+        "vatRate": "7%",
+        "hierarchyBillFlg": "Y",
+        "hierarchyBillCycle": "13",
+        "address": {
+            "homeNumber": "56",
+            "buildingName": "The Inside House",
+            "floor": "5",
+            "room": "13",
+            "moo": "1",
+            "mooBan": "สามล้าน",
+            "soi": "สามล้าน 1",
+            "street": "ถนน สามล้าน",
+            "tumbol": "พระสิงห์",
+            "amphur": "เมืองเชียงใหม่",
+            "province": "เชียงใหม่",
+            "zipCode": "50200",
+            "engFlag": "N"
+        },
+        "vatInfo": {
+            "vatName": "{{randomFirstName}} {{randomLastName}}",
+            "vatAddress1": "56",
+            "vatAddress3": "ถนน สามล้าน",
+            "vatAddress4": "พระสิงห์",
+            "vatAddress5": "เชียงใหม่",
+            "vatAddress6": "50200"
+        },
+        "baInfo": {
+            "baName": "{{randomFirstName}} {{randomLastName}} Billing",
+            "billName": "{{randomFirstName}} {{randomLastName}} Billing A",
+            "billCycle": "13",
+            "billLanguage": "Thai",
+            "billMedia": "SMS + Email",
+            "emailBillTo": "skyfbb@ais.co.th",
+            "smsBillTo": "0990376659",
+            "branchNumber": "54321",
+            "emailContact": "skyfbb@ais.co.th",
+            "mobileNumberContact": "0893647913",
+            "phoneNumberContact": "0257896521",
+            "titleName": "คุณ",
+            "contactFirstName": "{{randomFirstName}}",
+            "contactLastName": "{{randomLastName}}",
+            "contactTitle": "คุณ",
+            "vatRate": "7%",
+            "address": {
+                "homeNumber": "56",
+                "buildingName": "The Inside House",
+                "floor": "5",
+                "room": "13",
+                "moo": "1",
+                "mooBan": "สามล้าน",
+                "soi": "สามล้าน 1",
+                "street": "ถนน สามล้าน",
+                "tumbol": "พระสิงห์",
+                "amphur": "เมืองเชียงใหม่",
+                "province": "เชียงใหม่",
+                "zipCode": "50200",
+                "engFlag": "N"
+            },
+            "technologyInfo": [
+                {
+                    "instanceName": "FibreToTheRoomLine",
+                    "action": "Add",
+                    "characteristics": [
+                        {
+                            "name": "latitude",
+                            "value": "17.398091"
+                        },
+                        {
+                            "name": "longitude",
+                            "value": "102.804772"
+                        },
+                        {
+                            "name": "installAddress1",
+                            "value": "22 ลุมพินี เพลส ยูดี โพธ์ศรี ซี1"
+                        },
+                        {
+                            "name": "installAddress2",
+                            "value": "หมากแข้ง"
+                        },
+                        {
+                            "name": "installAddress3",
+                            "value": "เมืองอุดรธานี"
+                        },
+                        {
+                            "name": "installAddress4",
+                            "value": "อุดรธานี"
+                        },
+                        {
+                            "name": "installAddress5",
+                            "value": "41000"
+                        },
+                        {
+                            "name": "password",
+                            "value": "3DLVO5CTLA"
+                        },
+                        {
+                            "name": "ia",
+                            "value": "05900266999"
+                        },
+                        {
+                            "name": "networkProvider",
+                            "value": "AWN"
+                        },
+                        {
+                            "name": "contactName",
+                            "value": "{{randomFirstName}} {{randomLastName}}"
+                        },
+                        {
+                            "name": "contactMobilePhone",
+                            "value": "0990376659"
+                        },
+                        {
+                            "name": "addressId",
+                            "value": "20615339"
+                        },
+                        {
+                            "name": "phoneFlag",
+                            "value": "N"
+                        },
+                        {
+                            "name": "flowFlag",
+                            "value": "3"
+                        }
+                    ],
+                    "productOrderItem": [
+                        {
+                            "idType": "offeringPriceId",
+                            "idValue": "O2002P200200473",
+                            "action": "Add",
+                            "productOrderReason": "960",
+                            "effectiveType": "I",
+                            "characteristics": []
+                        },
+                        {
+                            "idType": "offeringPriceId",
+                            "idValue": "O1610P16105339",
+                            "action": "Add",
+                            "productOrderReason": "960",
+                            "effectiveType": "I",
+                            "characteristics": []
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "relateParty": {
+        "subcontractor": "",
+        "orderCreator": {
+            "name": "AWN_FBB",
+            "locationCode": "1008903",
+            "accessNumber": "662666"
+        },
+        "dealer": {
+            "code": "",
+            "branchLocationCode": "1008903",
+            "mobileNo": "0848209499",
+            "registerLocationCode": "117997"
+        },
+        "employeeId": "0806715572",
+        "installStaffID": "16390003",
+        "saleStaffName": "Pimpaka"
+    },
+    "customerIdentity": {
+        "smartCardBAFlag": "N",
+        "orderVerify": "User",
+        "idCardType": "บัตรประชาชน",
+        "idCardNumber": "{{thaiID}}",
+        "issueDate": "16/2/2020",
+        "titleName": "คุณ",
+        "firstName": "{{randomFirstName}}",
+        "lastName": "{{randomLastName}}",
+        "idCardImage": "VVV/wDQHxT8EPD6n9DTgvxlyTJqXD/GPCfD3D+JzbEZfzunxph+JuJMPlmOhn8as5c2Y4bH5osxyvNaadTB4SnWyWWHr4KrhJZf/9k=",
+        "imagesPost": "201808101715481533896148459_0891230862_1670800149907_IMGPOST_MC_KYC_SM.jpg",
+        "imagesFace": "201808101715481533896148459_0891230862_1670800149907_FACE_MC_KYC_SM.jpg",
+        "smartCardTitleName": "คุณ",
+        "smartCardFirstName": "{{randomFirstName}}  ",
+        "smartCardLastName": "{{randomLastName}}",
+        "smartCardAddress": "",
+        "smartCardBirthdate": "05/05/1990",
+        "smartCardGender": "F",
+        "businessDocument": "/export/home/MNT_NFS/DigitalApp/MYCH/NewRegis/bizdoc/20200727/1659902128567_0987961973_202007271344152771978_idcard_MC_SM.jpg ",
+        "verifyType": "Smart Card",
+        "dataChannel": "",
+        "dopaStatus": "Online",
+        "project": "SKY FBB",
+        "createdBy": "JATUH603",
+        "imagesId": ""
+    },
+    "appointment": {
+        "appointmentDate": "13/05/2024",
+        "assignConditionAreaRegion": "BKK",
+        "assignConditionEventRule": "New",
+        "assignConditionServiceLevel": "L",
+        "assignConditionSpecialSkill": "",
+        "baNo": "32300070266556",
+        "fbbContactNo1": "8870011911",
+        "fbbContactNo2": "",
+        "installationCapacity": "22/29",
+        "msisdn": "",
+        "onlineFlag": "N",
+        "playBoxAmount": "",
+        "regTime": "",
+        "remarkForSubcontract": "ATV PLAYBOX 24 m",
+        "replaceOntFlag": "",
+        "replaceRouterFlag": "",
+        "reservedId": "221111103401754000",
+        "reservedPort": "4091693",
+        "routerNum": "",
+        "shortcode": "",
+        "sTaffID": "",
+        "subAccessMode": "",
+        "subRequestFlag": "",
+        "symptom": "",
+        "timeslot": "16:00-18:30",
+        "urgentFlag": "0"
+    },
+    "agreement": {
+        "PJSBillType": "",
+        "PJSBizModel": "",
+        "PJSCodeProject": "",
+        "PJSDevelopCode": "",
+        "PJSDeveloper": "",
+        "PJSPackageOnInvoice": "",
+        "PJSPartnerReconcileFlg": "",
+        "PJSRefDoc": "",
+        "PJSTypeofCharging": "",
+        "PJSVillageName": "",
+        "privilegePoints": "100",
+        "referrerFbbId": "8870011911",
+        "referrerIdCard": "D202305301107",
+        "referrerOffer": "point"
+    },
+    "paymentInfo": {
+        "paidAmt": "640.00",
+        "passwordRefund": "",
+        "paymentDate": "",
+        "paymentMethod": "Cash",
+        "transactionId": "23062023001140000012"
+    },
+    "documentTracking": [
+        {
+            "docCode": "600",
+            "docPath": "/aaa/testFBB/",
+            "docFilename": "Filename.xxx"
+        }
+    ]
+}

@@ -1,0 +1,176 @@
+{
+    "customerOrderType": "migrate3BB",
+    "activity": "",
+    "subActivity": "",
+    "productOwner": "3BB",
+    "publicIdType": "fbbId",
+    "publicIdValue": "{{mobileNo_Migrate3BB}}",
+    "privateIdType": "referenceNo",
+    "privateIdValue": "TBB-{{privateIdValueKK}}",
+    "staffPrivilegeTransId": "20230601",
+    "chargeType": "Post-paid",
+    "projectDevCd": "PF001:พรอพเพอร์ตี้ เพอเฟก:7500",
+    "note": "Test 3BBSyncOrder",
+    "channel": "TBBShop",
+    "reasonCode": "958",
+    "callbackUrl": "http://10.138.21.213:7001/testCall",
+    "orderDate": "{{currentOrderdate}}",
+    "closeOrderDate": "21/07/2025 15:23:00",
+    "cvgFlag": "N",
+    "projectName": "",
+    "subProjectName": "",
+    "mainPromoBand": "FMC",
+    "paymentType": "Post-paid",
+    "technologyInfo": [
+        {
+            "baNumber": "{{baNumberFBB1ST}}",
+            "characteristics": [
+                {
+                    "name": "businessModel",
+                    "value": "TBB"
+                },
+                {
+                    "name": "latitude",
+                    "value": "17.398091"
+                },
+                {
+                    "name": "longitude",
+                    "value": "102.804772"
+                },
+                {
+                    "name": "password",
+                    "value": "TBB"
+                },
+                {
+                    "name": "ia",
+                    "value": "20241000127458"
+                },
+                {
+                    "name": "networkProvider",
+                    "value": "AWN"
+                },
+                {
+                    "name": "orderNo",
+                    "value": "20241000127458"
+                },
+                {
+                    "name": "splitter2_1",
+                    "value": "TBB"
+                },
+                {
+                    "name": "distance_1",
+                    "value": "TBB"
+                },
+                {
+                    "name": "splitter2_2",
+                    "value": "TBB"
+                },
+                {
+                    "name": "distance_2",
+                    "value": "TBB"
+                },
+                {
+                    "name": "splitter2_3",
+                    "value": "TBB"
+                },
+                {
+                    "name": "distance_3",
+                    "value": "TBB"
+                },
+                {
+                    "name": "splitter2_4",
+                    "value": "TBB"
+                },
+                {
+                    "name": "distance_4",
+                    "value": "TBB"
+                },
+                {
+                    "name": "splitter2_5",
+                    "value": "TBB"
+                },
+                {
+                    "name": "distance_5",
+                    "value": "TBB"
+                }
+            ],
+            "instanceName": "VeryHighBitRateDigitalSubscriberLine",
+            "action": "Add",
+            "mobileNo": "022587458",
+            "provinceCode": "BKK",
+            "baName": "กมลฉันท์  อินทรประสาท   Billing Billing A-1",
+            "billCycle": "13",
+            "serviceLevel": "H",
+            "serviceLevelReason": "FBB_V",
+            "effectiveDate": "{{dayplusOrderdate}}",
+            "productOrderItem": [
+                {
+                    "idType": "offeringPriceId",
+                    "idValue": "O2008P200802352",
+                    "action": "Add",
+                    "productOrderReason": "956",
+                    "effectiveType": "F",
+                    "effectiveDate": "{{dayplusOrderdate2}}",
+                    "expirationDate": "13/12/2025 10:27:33",
+                    "characteristics": []
+                }
+                , {
+                    "idType": "offeringPriceId",
+                    "idValue": "O1610P16105337",
+                    "action": "Add",
+                    "productOrderReason": "956",
+                    "effectiveType": "F",
+                    "effectiveDate": "{{dayplusOrderdate2plusmin10}}",
+                    "expirationDate": "13/12/2025 10:27:33",
+                    "characteristics": []
+                }
+            ]
+            ,"feeItem": [
+                        {
+                            "idType": "offeringPriceId",
+                            "idValue": "O1706P17068552",
+                            "action": "Add",
+                            "orderFeePrice": "650.00",
+                            "itemPrice": "607.48",
+                            "taxAmt": "42.52",
+                            "equipmentType": "PlayBox"
+                        }
+                    ]
+        }
+    ],
+    "appointment": {
+        "appointmentDate": "10/05/2024",
+        "assignConditionAreaRegion": "BKK",
+        "assignConditionEventRule": "New",
+        "assignConditionServiceLevel": "L",
+        "assignConditionSpecialSkill": "",
+        "baNo": "32400070310146",
+        "fbbContactNo1": "8870011911",
+        "fbbContactNo2": "",
+        "installationCapacity": "22/29",
+        "msisdn": "",
+        "onlineFlag": "N",
+        "playBoxAmount": "",
+        "regTime": "",
+        "remarkForSubcontract": "ATV PLAYBOX 24 m",
+        "replaceOntFlag": "",
+        "replaceRouterFlag": "",
+        "reservedId": "221111103401754000",
+        "reservedPort": "4091693",
+        "routerNum": "",
+        "shortcode": "",
+        "sTaffID": "",
+        "subAccessMode": "",
+        "subRequestFlag": "",
+        "symptom": "",
+        "timeslot": "16:00-18:30",
+        "urgentFlag": "0",
+        "contactMobilePhone": "0870011911",
+        "contactName": "ณัฐกิตติ์ ปิติโอภา",
+        "installAddress1": "22 ลุมพินี เพลส ยูดี",
+        "installAddress2": "หมากแข้ง",
+        "installAddress3": "เมืองอุดรธานี",
+        "installAddress4": "อุดรธานี",
+        "installAddress5": "41000"
+    }
+}
