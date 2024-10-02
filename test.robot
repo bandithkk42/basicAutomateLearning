@@ -13,11 +13,13 @@ Library          DateTime
 Library          DatabaseLibrary
 Library          OperatingSystem
 Library          Collections
+Library          XML
 #Library          RPA.Excel.Application
 Resource         Repository/Database/query.robot
 Resource         Repository/API/uri.robot
 Library          OperatingSystem
 Library          pythonFile/decode.py
+Library          pythonFile/addMoreCode.py
 
 #Resource        ../../ResourcesNew/Variables/BTA_common_variable.robot
 
@@ -44,6 +46,44 @@ Replace The Variables In Request Body New Register
     Set Global Variable    ${json}
     Log    ${json}
 
+
+Replace The Variables In Request Body NEW ACCOUNT SFF
+    ${xml_req}=    Get File    Variables/NewAccount_SFF.xml
+    ${xml_req}     Replace String    ${xml_req}    {{accountType}}                          BA
+    ${xml_req}     Replace String    ${xml_req}    {{saNumber}}                             ${Empty}
+    ${xml_req}     Replace String    ${xml_req}    {{accountCat}}                           R
+    ${xml_req}     Replace String    ${xml_req}    {{accountSubCat}}                         THA
+    ${xml_req}     Replace String    ${xml_req}    {{idCardType}}                         ID_CARD
+    ${xml_req}     Replace String    ${xml_req}    {{idCardNo}}                             ${thaiID}
+    ${xml_req}     Replace String    ${xml_req}    {{title}}                            นาย
+    ${xml_req}     Replace String    ${xml_req}    {{firstName}}                         ${randomFirstName}
+    ${xml_req}     Replace String    ${xml_req}    {{lastName}}                         ${randomLastName}
+    ${xml_req}     Replace String    ${xml_req}    {{saleRepName}}                         ${Empty}
+    ${xml_req}     Replace String    ${xml_req}    {{emailAddress}}                         ${Empty}
+    ${xml_req}     Replace String    ${xml_req}    {{homeNo}}                               77/90
+    ${xml_req}     Replace String    ${xml_req}    {{buildingName}}                         ${Empty}
+    ${xml_req}     Replace String    ${xml_req}    {{floor}}                         ${Empty}
+    ${xml_req}     Replace String    ${xml_req}    {{room}}                         ${Empty}
+    ${xml_req}     Replace String    ${xml_req}    {{moo}}                         ${Empty}
+    ${xml_req}     Replace String    ${xml_req}    {{mooBan}}                         ${Empty}
+    ${xml_req}     Replace String    ${xml_req}    {{soi}}                         ${Empty}
+    ${xml_req}     Replace String    ${xml_req}    {{street}}                         ${Empty}
+    ${xml_req}     Replace String    ${xml_req}    {{tumbol}}                         จอมทอง
+    ${xml_req}     Replace String    ${xml_req}    {{amphur}}                         จอมทอง
+    ${xml_req}     Replace String    ${xml_req}    {{province}}                         กรุงเทพ
+    ${xml_req}     Replace String    ${xml_req}    {{zipCode}}                         10150
+    ${xml_req}     Replace String    ${xml_req}    {{userName}}                         MC
+    ${xml_req}     Replace String    ${xml_req}    {{channel}}                         ${Empty}
+    ${xml_req}     Replace String    ${xml_req}    {{mainMobileNo}}                         0987774456
+    ${xml_req}     Replace String    ${xml_req}    {{invoicingCompany}}                         AWN
+    ${xml_req}     Replace String    ${xml_req}    {{overrideProfileFlag}}                         ${Empty}
+    ${xml_req}     Replace String    ${xml_req}    {{accountName}}                         ${Empty}
+    ${xml_req}     Replace String    ${xml_req}    {{taxPaperFlag}}                         ${Empty}
+    ${xml_req}     Replace String    ${xml_req}    {{accntSource}}                         ${Empty}
+
+
+    Set Global Variable    ${xml_req}
+    Log    ${xml_req}
 
 Replace The Variables In Request Body Migrate3BB
     ${json}     Get file          Variables/Migrate3BB.json
@@ -221,8 +261,9 @@ CALL Migrate3BB
     Log    ${order}
 
 Random ThaiID
-    ${thai_id}=    Evaluate    str(random.randint(1,8)) + ''.join([str(random.randint(0,9)) for _ in range(13-1)])    random
+    ${thai_id}=      Generate Thai Citizen ID
     Set Global Variable     ${thaiID}       ${thai_id}
+
 
 GET ALL DATE FORMAT
     ${date}=      Get Current Date    exclude_millis=no
@@ -230,11 +271,15 @@ GET ALL DATE FORMAT
     ${years}=   Convert Date     ${date}      result_format=%Y
     ${month}=   Convert Date     ${date}      result_format=%m
     ${day}=   Convert Date     ${date}      result_format=%d
-    ${dayplus}=   Evaluate    ${day} + 1
-    ${dayplus2}=   Evaluate    ${day} + 2
+    ${day_int}=    Evaluate    '${day}'.lstrip('0') or '0'
+    ${dayplus}=   Evaluate    ${day_int} + 1
+    ${dayplus}=   Evaluate    '0' + str(${dayplus}) if len(str(${dayplus})) == 1 else str(${dayplus})
+    ${dayplus2}=   Evaluate    ${day_int} + 2
+    ${dayplus2}=   Evaluate    '0' + str(${dayplus2}) if len(str(${dayplus2})) == 1 else str(${dayplus2})
     ${hours}=  Convert Date    ${date}       result_format=%H
     ${minutes}=  Convert Date    ${date}       result_format=%M
-    ${minutesplus10}=  Evaluate    ${minutes} + 10
+    ${minutesplus10}=  Evaluate    '${minutes}'.lstrip('0') or '0' + 10
+    ${minutesplus10}=  Evaluate    '0' + str(${minutesplus10}) if len(str(${minutesplus10})) == 1 else str(${minutesplus10})
     ${seconds}=  Convert Date    ${date}       result_format=%S
     ${millisec}=  Convert Date    ${date}       result_format=%f
     ${millisec}=  Set Variable      ${millisec[:4]}
@@ -275,6 +320,39 @@ GENERATE REQUEST ALL VALUE
     GET ALL DATE FORMAT
 
 
+CALL NEW ACCOUNT SFF
+    GENERATE REQUEST ALL VALUE
+    Replace The Variables In Request Body NEW ACCOUNT SFF
+    ${order}=     API NEW ACCOUNT SFF
+
+    Log    ${order}
+
+
+REQUEST NEW ACCOUNT SFF
+    [Arguments]     ${token}
+    ${url}=     set variable         http://10.252.64.153:8803/SFFWebService/SFFService
+    ${header}=      Create Dictionary      Content-Type=text/xml;charset=utf-8              Authorization=${token}
+    Create Session    tmd    ${url}       verify=False     headers=${header}
+
+    ${resp}=         post on session        tmd     ${Empty}       data=${xml_req}       expected_status=any
+
+    Set Global Variable     ${status}       ${resp.status_code}
+    RETURN        ${resp}
+
+
+
+API NEW ACCOUNT SFF
+    ${resp}=        Request to Get Token        ${get_token_body}
+    Log  response=${resp.content}
+    ${resDict}=      Evaluate     json.loads("""${resp.content}""")    json
+    Log    ${resDict}
+    ${orderResp}=       REQUEST NEW ACCOUNT SFF       ${resDict["token"]}
+    log    ${orderResp.content}
+    Set Global Variable     ${orderRes_account_sff}      ${orderResp.content}
+    RETURN        ${orderResp.content}
+
+
+
 *** Test Cases ***
 
 Test Newregister 1st fbb > Migrate3bb
@@ -299,3 +377,21 @@ OPEN MICKY
     Press Keys    class=rich-button    RETURN
     Sleep    20s
     Press Keys    href=create_newaccount_ws.jsf    RETURN
+
+
+test call sff
+    CALL NEW ACCOUNT SFF
+    ${xmlaccount}      Parse Xml    ${orderRes_account_sff}
+    ${xmlaccount_result}        Get Element    ${xmlaccount}        Body/ExecuteServiceResponse/return/ParameterList
+    ${xmlaccount_result_test}       Get Element Text    ${xmlaccount_result}
+    ${len_result}           Get Length    ${xmlaccount_result}
+    FOR    ${i}    IN RANGE    1    ${len_result}-1
+        ${result_name}        Set Variable        ${xmlaccount_result[${i}][0]}
+        ${result_value}        Set Variable        ${xmlaccount_result[${i}][1]}
+        ${result_name_text}       Get Element Text    ${result_name}
+        ${result_value_text}       Get Element Text    ${result_value}
+        Log    ${result_name_text}
+        Log    ${result_value_text}
+
+    END
+    Log    ${xmlaccount_result_test}
