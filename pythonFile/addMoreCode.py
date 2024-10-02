@@ -1,4 +1,9 @@
 import  random
+from jsonpath_ng.ext import parse
+import xmltodict
+import json
+
+
 
 def generate_thai_citizen_id():
     # Generate random digits (not following the real generation process)
@@ -10,3 +15,19 @@ def generate_thai_citizen_id():
 
     # Combine digits and checksum for display (not a real ID)
     return ''.join(digits + [str(checksum)])
+
+
+def add_data_to_array_json(json_object, json_path, value):
+    json_path_expr = parse(json_path)
+    matches = json_path_expr.find(json_object)
+
+    # Append the value to all matching arrays
+    for match in matches:
+        if isinstance(match.value, list):
+            match.value.append(value)
+
+    return json_object
+
+def convert_xml_to_json(xml_string):
+    json_data = json.dumps(xmltodict.parse(xml_string))
+    return json_data

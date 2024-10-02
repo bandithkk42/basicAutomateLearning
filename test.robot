@@ -1,7 +1,7 @@
 *** Settings ***
 Library          Selenium2Library
 Library          ExcelLibrary
-#Library          ExcelRobot
+Library          ExcelRobot
 Library          BuiltIn
 Library          RequestsLibrary
 Library          String
@@ -30,14 +30,33 @@ ${expected_result}     Podcasts ไทย
 
 *** Keywords ***
 Write Data To Excel
-    [Arguments]    ${sheetName}  ${fileName}
+    [Arguments]    ${sheetName}     ${fileName}
     Open Excel      ${fileName}
+    Open Excel To Write    ${fileName}
     ${countcolumn}         Get Column Count    ${sheetName}
-    ${countrowumn}          Get Row Count      ${sheetName}
-    ${cell_value}      Read Cell Data     ${sheetName}   0    0
+    ${countrow}          Get Row Count      ${sheetName}
+    ${integer_type}    Evaluate    type(${countcolumn}).__name__
+    Write To Cell    ${sheetName}    ${countcolumn}    ${countrow}    haha
+    Save Excel
 
-    @{row_data} =    Create List    Hello, World!    123    Test Data
-    Write Row    Sheet1    1    @{row_data}  # Writes to the first row
+
+Write Data SFF Account To Excel
+    [Arguments]    ${sheetName}     ${fileName}     ${datainsesrt}
+    Open Excel      ${fileName}
+    Open Excel To Write    ${fileName}
+    ${countcolumn}         Get Column Count    ${sheetName}
+    ${countrow}          Get Row Count      ${sheetName}
+    ${countdata}        Get Length    ${datainsesrt}
+
+    ${newcolumn}=        Evaluate        0
+    ${newrow}=        Evaluate        ${countrow}+1
+    FOR    ${itemdata}    IN RANGE    0    ${countdata}-1
+        ${item_save}        Set Variable    ${datainsesrt[${itemdata}]}
+        Write To Cell    ${sheetName}    ${newcolumn}    ${newrow}   ${item_save["java:Name"]}
+        ${newrowvalue}=        Evaluate        ${newrow}+1
+        Write To Cell    ${sheetName}    ${newcolumn}    ${newrowvalue}   ${item_save["java:Value"]}
+        ${newcolumn}        Evaluate    ${newcolumn}+1
+    END
     Save Excel
 
 
@@ -57,8 +76,8 @@ Replace The Variables In Request Body NEW ACCOUNT SFF
     ${xml_req}=    Get File    Variables/NewAccount_SFF.xml
     ${xml_req}     Replace String    ${xml_req}    {{accountType}}                          BA
     ${xml_req}     Replace String    ${xml_req}    {{saNumber}}                             ${Empty}
-    ${xml_req}     Replace String    ${xml_req}    {{accountCat}}                           R
-    ${xml_req}     Replace String    ${xml_req}    {{accountSubCat}}                         THA
+    ${xml_req}     Replace String    ${xml_req}    {{accountCat}}                           ${random_ACCNT_CATEGORY}
+    ${xml_req}     Replace String    ${xml_req}    {{accountSubCat}}                         ${random_ACCNT_SUB_CATEGORY}
     ${xml_req}     Replace String    ${xml_req}    {{idCardType}}                         ID_CARD
     ${xml_req}     Replace String    ${xml_req}    {{idCardNo}}                             ${thaiID}
     ${xml_req}     Replace String    ${xml_req}    {{title}}                            นาย
@@ -110,6 +129,9 @@ Connect Database on Sky IOT
 
 Connect Database on SFF PVT
     Connect To Database Using Custom Params     cx_Oracle     'supanutm/supanutm@172.16.249.36:1536/SFFPVTDB'
+
+Connect Database on SFF SIT
+    Connect To Database Using Custom Params     cx_Oracle     'supanutm/supanutm@172.16.249.77:1536/SFFSITDB'
 
 Query Database on Sky for check COMPLETE FBB newregister 1st
     [Arguments]     ${ordernoDB}
@@ -328,6 +350,7 @@ GENERATE REQUEST ALL VALUE
 
 CALL NEW ACCOUNT SFF
     GENERATE REQUEST ALL VALUE
+    Random SFF DATA ACCOUNT
     Replace The Variables In Request Body NEW ACCOUNT SFF
     ${order}=     API NEW ACCOUNT SFF
 
@@ -372,6 +395,13 @@ Random SFF DATA ACCOUNT
     Set Global Variable     ${random_ACCNT_SUB_CATEGORY}       ${allGroupCate[${randomnumberallGroupCate}]["ACCNT_SUB_CATEGORY"][${randomnumberACCNT_SUB_CATEGORY}]}
 
 
+Update Database on SFF for SFF Account
+    Connect Database on SFF SIT
+    ${SFF_updateaccount}            Set Variable        UPDATE SFFADM.SFF_ACCOUNT SET CRM_STATUS_CD ='Prospect' WHERE accnt_no in ('32400050511575','32400050511576');
+    ${Result0fQuery}=        Query          ${SFF_updateaccount}
+    log     ${Result0fQuery}
+    Disconnect from database
+
 
 *** Test Cases ***
 
@@ -389,6 +419,9 @@ Test query
 Test Excel
     Write Data To Excel     Sheet1      ExcelDATA/test.xlsx
 
+test update db
+#    Update Database on SFF for SFF Account
+    Query Database on SFF for GET mobileno Migrate3BB
 
 OPEN MICKY
     Open Browser    https://10.137.20.37:8103/WebTestWorkOrder/portal.jsf    firefox
@@ -399,22 +432,32 @@ OPEN MICKY
     Press Keys    href=create_newaccount_ws.jsf    RETURN
 
 
-test call sff
+Generate NEW ACCOUNT SFF
     CALL NEW ACCOUNT SFF
-    ${xmlaccount}      Parse Xml    ${orderRes_account_sff}
-    ${xmlaccount_result}        Get Element    ${xmlaccount}        Body/ExecuteServiceResponse/return/ParameterList
-    ${xmlaccount_result_test}       Get Element Text    ${xmlaccount_result}
-    ${len_result}           Get Length    ${xmlaccount_result}
-    FOR    ${i}    IN RANGE    1    ${len_result}-1
-        ${result_name}        Set Variable        ${xmlaccount_result[${i}][0]}
-        ${result_value}        Set Variable        ${xmlaccount_result[${i}][1]}
-        ${result_name_text}       Get Element Text    ${result_name}
-        ${result_value_text}       Get Element Text    ${result_value}
-        Log    ${result_name_text}
-        Log    ${result_value_text}
+    ${jsonxmlAccount}    convert xml to json   ${orderRes_account_sff}
+    ${jsonxmlAccount}=  Evaluate  json.loads('''${jsonxmlAccount}''')  json
+    ${jsonxmlAccountListparam}       Set Variable    ${jsonxmlAccount["env:Envelope"]["env:Body"]["m:ExecuteServiceResponse"]["m:return"]["java:ParameterList"]["java:Parameter"]}
+    Write Data SFF Account To Excel     Sheet1      ExcelDATA/test.xlsx     ${jsonxmlAccountListparam}
+#    ${xmlaccount}      Parse Xml    ${orderRes_account_sff}
+#    ${xmlaccount_result}        Get Element    ${xmlaccount}        Body/ExecuteServiceResponse/return/ParameterList
+#    ${len_result}           Get Length    ${xmlaccount_result}
+#    ${json_save_excel}    Load JSON From File    dataJson/formatSaveExcel.json
+#    ${header_excel}    Get Value From Json    ${json_save_excel}    $.Header
+#    ${value_excel}    Get Value From Json    ${json_save_excel}    $.Value
+#    FOR    ${i}    IN RANGE    1    ${len_result}-1
+#        ${result_name}        Set Variable        ${xmlaccount_result[${i}][0]}
+#        ${result_value}        Set Variable        ${xmlaccount_result[${i}][1]}
+#        ${result_name_text}       Get Element Text    ${result_name}
+#        ${result_value_text}       Get Element Text    ${result_value}
+#        Log    ${result_name_text}
+#        Log    ${result_value_text}
+#        ${json_save_excel}      Add Data To Array Json   ${json_save_excel}    $.Header    ${result_name_text}
+#        ${json_save_excel}      Add Data To Array Json   ${json_save_excel}    $.Value    ${result_value_text}
+#
+#    END
+#    Log    ${json_save_excel}
+     Log    ${jsonxmlAccountListparam}
 
-    END
-    Log    ${xmlaccount_result_test}
 
 
 
