@@ -31,9 +31,15 @@ ${expected_result}     Podcasts ไทย
 *** Keywords ***
 Write Data To Excel
     [Arguments]    ${sheetName}  ${fileName}
-    Open Excel Document      ${fileName}    doc1
-    ${pathReport}   Set Variable    ${OUTPUT_DIR}${/}report.html
-    Log    ${pathReport}
+    Open Excel      ${fileName}
+    ${countcolumn}         Get Column Count    ${sheetName}
+    ${countrowumn}          Get Row Count      ${sheetName}
+    ${cell_value}      Read Cell Data     ${sheetName}   0    0
+
+    @{row_data} =    Create List    Hello, World!    123    Test Data
+    Write Row    Sheet1    1    @{row_data}  # Writes to the first row
+    Save Excel
+
 
 Replace The Variables In Request Body New Register
     ${json}     Get file          Variables/Newregister_1st.json
@@ -353,6 +359,20 @@ API NEW ACCOUNT SFF
 
 
 
+Random SFF DATA ACCOUNT
+    ${jsonSffparam}     Get file          dataJson/SffParam.json
+    ${respSffparam}=  Evaluate  json.loads('''${jsonSffparam}''')  json
+    ${allGroupCate}    Set Variable       ${respSffparam["GROUP_ACCNT_CATEGORY"]}
+    ${randomnumberallGroupCate}=    Get Length    ${allGroupCate}
+    ${randomnumberallGroupCate}=    Evaluate  random.randint(0, ${randomnumberallGroupCate} -1)    random
+    ${randomnumberACCNT_SUB_CATEGORY}=    Get Length    ${allGroupCate[${randomnumberallGroupCate}]["ACCNT_SUB_CATEGORY"]}
+    ${randomnumberACCNT_SUB_CATEGORY}=    Evaluate  random.randint(0, ${randomnumberACCNT_SUB_CATEGORY} -1)    random
+
+    Set Global Variable     ${random_ACCNT_CATEGORY}       ${allGroupCate[${randomnumberallGroupCate}]["ACCNT_CATEGORY"]}
+    Set Global Variable     ${random_ACCNT_SUB_CATEGORY}       ${allGroupCate[${randomnumberallGroupCate}]["ACCNT_SUB_CATEGORY"][${randomnumberACCNT_SUB_CATEGORY}]}
+
+
+
 *** Test Cases ***
 
 Test Newregister 1st fbb > Migrate3bb
@@ -367,7 +387,7 @@ Test query
     Log    ${tes}
 
 Test Excel
-    Write Data To Excel     "KK"      "Newregister"
+    Write Data To Excel     Sheet1      ExcelDATA/test.xlsx
 
 
 OPEN MICKY
@@ -395,3 +415,6 @@ test call sff
 
     END
     Log    ${xmlaccount_result_test}
+
+
+
