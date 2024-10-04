@@ -3,15 +3,7 @@
     {
       "ACCNT_CATEGORY": "R",
       "ACCNT_SUB_CATEGORY": [
-        "THA",
-        "FOR"
-      ]
-    },
-    {
-      "ACCNT_CATEGORY": "B",
-      "ACCNT_SUB_CATEGORY": [
-        "SME",
-        "KEY"
+        "THA"
       ]
     }
   ]

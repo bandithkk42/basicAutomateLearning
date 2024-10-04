@@ -1,7 +1,7 @@
 *** Settings ***
 Library          Selenium2Library
 Library          ExcelLibrary
-Library          ExcelRobot
+#Library          ExcelRobot
 Library          BuiltIn
 Library          RequestsLibrary
 Library          String
@@ -14,12 +14,16 @@ Library          DatabaseLibrary
 Library          OperatingSystem
 Library          Collections
 Library          XML
+Library          Process
+#Library          RPA.Excel.Files
 #Library          RPA.Excel.Application
 Resource         Repository/Database/query.robot
 Resource         Repository/API/uri.robot
 Library          OperatingSystem
-Library          pythonFile/decode.py
+#Library          pythonFile/decode.py
 Library          pythonFile/addMoreCode.py
+Library    RPA.MSGraph
+
 
 #Resource        ../../ResourcesNew/Variables/BTA_common_variable.robot
 
@@ -31,33 +35,55 @@ ${expected_result}     Podcasts ไทย
 *** Keywords ***
 Write Data To Excel
     [Arguments]    ${sheetName}     ${fileName}
-    Open Excel      ${fileName}
-    Open Excel To Write    ${fileName}
-    ${countcolumn}         Get Column Count    ${sheetName}
-    ${countrow}          Get Row Count      ${sheetName}
-    ${integer_type}    Evaluate    type(${countcolumn}).__name__
-    Write To Cell    ${sheetName}    ${countcolumn}    ${countrow}    haha
-    Save Excel
-
+    Open Excel Document    ${fileName}    ${sheetName}
+#    Open Excel      ${fileName}
+#    Open Excel To Write    ${fileName}
+    ${countcolumn}         Read Excel Column    ${sheetName}
+    ${countrow}          Read Excel Row      ${sheetName}
+#    ${countcolumn}         Get Column Count    ${sheetName}
+#    ${countrow}          Get Row Count      ${sheetName}
+    Write Excel Cell    row_num    col_num    value
+#    Write To Cell    ${sheetName}    ${countcolumn}    ${countrow}    haha
+#    Save Excel
+    Save Excel Document    ${fileName}
 
 Write Data SFF Account To Excel
     [Arguments]    ${sheetName}     ${fileName}     ${datainsesrt}
-    Open Excel      ${fileName}
-    Open Excel To Write    ${fileName}
-    ${countcolumn}         Get Column Count    ${sheetName}
-    ${countrow}          Get Row Count      ${sheetName}
+#    Open Excel    ${fileName}
+    Open Excel Document    ${fileName}    ${sheetName}
+#    ${countcolumn}         Get Column Count    ${sheetName}
+#    ${countrow}          Get Row Count      ${sheetName}
+    ${countcolumn}            Count Excel Column    ${sheetName}
+    ${countrow}         Count Excel Row      ${sheetName}
     ${countdata}        Get Length    ${datainsesrt}
-
-    ${newcolumn}=        Evaluate        0
+    ${newcolumn}=        Evaluate        1
     ${newrow}=        Evaluate        ${countrow}+1
-    FOR    ${itemdata}    IN RANGE    0    ${countdata}-1
+    FOR    ${itemdata}    IN RANGE    1    ${countdata}
         ${item_save}        Set Variable    ${datainsesrt[${itemdata}]}
-        Write To Cell    ${sheetName}    ${newcolumn}    ${newrow}   ${item_save["java:Name"]}
-        ${newrowvalue}=        Evaluate        ${newrow}+1
-        Write To Cell    ${sheetName}    ${newcolumn}    ${newrowvalue}   ${item_save["java:Value"]}
+#        Write Excel Cell      ${newrow}          ${newcolumn}       ${item_save["java:Name"]}
+#        ${newrowvalue}=        Evaluate        ${newrow}+1
+#        Write Excel Cell    ${newrowvalue}                ${newcolumn}       ${item_save["java:Value"]}
+        Write Excel Cell    ${newrow}                ${newcolumn}       ${item_save["java:Value"]}
         ${newcolumn}        Evaluate    ${newcolumn}+1
+        IF    '${item_save["java:Name"]}' == 'accountNo'
+            IF    ${item_save["java:Value"]} is not None
+                IF    ${item_save["java:Value"]} != ''
+                    Update Database on SFF for SFF Account      ${item_save["java:Value"]}
+                ELSE
+                     CONTINUE
+                END
+            ELSE
+                 CONTINUE
+            END
+        ELSE
+            CONTINUE
+        END
+
     END
-    Save Excel
+    Save Excel Document    ${fileName}
+    Close All Excel Documents
+
+
 
 
 Replace The Variables In Request Body New Register
@@ -97,10 +123,10 @@ Replace The Variables In Request Body NEW ACCOUNT SFF
     ${xml_req}     Replace String    ${xml_req}    {{amphur}}                         จอมทอง
     ${xml_req}     Replace String    ${xml_req}    {{province}}                         กรุงเทพ
     ${xml_req}     Replace String    ${xml_req}    {{zipCode}}                         10150
-    ${xml_req}     Replace String    ${xml_req}    {{userName}}                         MC
+    ${xml_req}     Replace String    ${xml_req}    {{userName}}                         3BBAIS
     ${xml_req}     Replace String    ${xml_req}    {{channel}}                         ${Empty}
     ${xml_req}     Replace String    ${xml_req}    {{mainMobileNo}}                         0987774456
-    ${xml_req}     Replace String    ${xml_req}    {{invoicingCompany}}                         AWN
+    ${xml_req}     Replace String    ${xml_req}    {{invoicingCompany}}                         TBB
     ${xml_req}     Replace String    ${xml_req}    {{overrideProfileFlag}}                         ${Empty}
     ${xml_req}     Replace String    ${xml_req}    {{accountName}}                         ${Empty}
     ${xml_req}     Replace String    ${xml_req}    {{taxPaperFlag}}                         ${Empty}
@@ -396,40 +422,13 @@ Random SFF DATA ACCOUNT
 
 
 Update Database on SFF for SFF Account
+    [Arguments]        ${BAnumber}
+    ${CAnumber}         Evaluate    ${BAnumber}-1
     Connect Database on SFF SIT
-    ${SFF_updateaccount}            Set Variable        UPDATE SFFADM.SFF_ACCOUNT SET CRM_STATUS_CD ='Prospect' WHERE accnt_no in ('32400050511575','32400050511576');
-    ${Result0fQuery}=        Query          ${SFF_updateaccount}
-    log     ${Result0fQuery}
+    ${SFF_updateaccount}            Set Variable        UPDATE SFFADM.SFF_ACCOUNT SET CRM_STATUS_CD ='Prospect' WHERE accnt_no in ('${CAnumber}','${BAnumber}')
+    ${Result0fQuery}=         Execute Sql String          ${SFF_updateaccount}
+    log     ${SFF_updateaccount}
     Disconnect from database
-
-
-*** Test Cases ***
-
-Test Newregister 1st fbb > Migrate3bb
-    CALL Newregister 1st fbb
-    CALL Migrate3BB
-    Log    ${orderRes_Newregister_1st}
-    Log    ${orderRes_Migrate3BB}
-
-
-Test query
-    ${tes}=   Query Database on Sky for check if RESEND FBB newregister 1st      FS-lqxzx-240827104739552318620871
-    Log    ${tes}
-
-Test Excel
-    Write Data To Excel     Sheet1      ExcelDATA/test.xlsx
-
-test update db
-#    Update Database on SFF for SFF Account
-    Query Database on SFF for GET mobileno Migrate3BB
-
-OPEN MICKY
-    Open Browser    https://10.137.20.37:8103/WebTestWorkOrder/portal.jsf    firefox
-    Input Text    id=frm:username    bandh443
-    Input Text    id=frm:password    bandh443
-    Press Keys    class=rich-button    RETURN
-    Sleep    20s
-    Press Keys    href=create_newaccount_ws.jsf    RETURN
 
 
 Generate NEW ACCOUNT SFF
@@ -437,7 +436,8 @@ Generate NEW ACCOUNT SFF
     ${jsonxmlAccount}    convert xml to json   ${orderRes_account_sff}
     ${jsonxmlAccount}=  Evaluate  json.loads('''${jsonxmlAccount}''')  json
     ${jsonxmlAccountListparam}       Set Variable    ${jsonxmlAccount["env:Envelope"]["env:Body"]["m:ExecuteServiceResponse"]["m:return"]["java:ParameterList"]["java:Parameter"]}
-    Write Data SFF Account To Excel     Sheet1      ExcelDATA/test.xlsx     ${jsonxmlAccountListparam}
+    Write Data SFF Account To Excel     Sheet1      ExcelDATA/Newaccount.xlsx     ${jsonxmlAccountListparam}
+#    Write Data SFF Account To Excel     Sheet1      ExcelDATA/Newregister.xlsx     ${jsonxmlAccountListparam}
 #    ${xmlaccount}      Parse Xml    ${orderRes_account_sff}
 #    ${xmlaccount_result}        Get Element    ${xmlaccount}        Body/ExecuteServiceResponse/return/ParameterList
 #    ${len_result}           Get Length    ${xmlaccount_result}
@@ -457,6 +457,37 @@ Generate NEW ACCOUNT SFF
 #    END
 #    Log    ${json_save_excel}
      Log    ${jsonxmlAccountListparam}
+
+*** Test Cases ***
+
+Test Newregister 1st fbb > Migrate3bb
+    CALL Newregister 1st fbb
+    CALL Migrate3BB
+    Log    ${orderRes_Newregister_1st}
+    Log    ${orderRes_Migrate3BB}
+
+
+Test query
+    ${tes}=   Query Database on Sky for check if RESEND FBB newregister 1st      FS-lqxzx-240827104739552318620871
+    Log    ${tes}
+
+Test Excel
+    Write Data To Excel     Sheet1      ExcelDATA/test.xlsx
+
+
+OPEN MICKY
+    Open Browser    https://10.137.20.37:8103/WebTestWorkOrder/portal.jsf    firefox
+    Input Text    id=frm:username    bandh443
+    Input Text    id=frm:password    bandh443
+    Press Keys    class=rich-button    RETURN
+    Sleep    20s
+    Press Keys    href=create_newaccount_ws.jsf    RETURN
+
+
+MICKY GEN ACCOUNT SIT
+    FOR    ${counter}    IN RANGE    1    20
+            Generate NEW ACCOUNT SFF
+    END
 
 
 
