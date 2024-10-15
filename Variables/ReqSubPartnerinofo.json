@@ -1,0 +1,22 @@
+{
+  "fbbRefId": "{{mobileno}}",
+  "orderNo": "FC-wz7d2-{{timestamp}}",
+  "privateIdType": "customerOrderRefId",
+  "publicIdType": "fbbRefId",
+  "channel": "TBBShop",
+  "chargeType": "Post-paid",
+  "serviceInfo": [
+    {
+      "cfsSpecId": "SFPC221200159",
+      "action": "Add"
+    }
+  ],
+  "sessionId": "FC-wz7d2-{{timestamp}}",
+  "publicIdValue": "{{mobileno}}",
+  "contactMobilePhone": "0990376659",
+  "billingSystem": "IRB",
+  "privateIdValue": "FC-wz7d2-{{timestamp}}T001",
+  "activityType": "migrate3BB",
+  "user": "SKYUSER",
+  "subActivityType": ""
+}

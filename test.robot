@@ -80,9 +80,27 @@ Write Data SFF Account To Excel
         END
 
     END
+    Write Excel Cell    ${newrow}                ${newcolumn}       ${xml_req}
     Save Excel Document    ${fileName}
     Close All Excel Documents
 
+
+
+Write Data SUBPARTNERINFO To Excel
+    [Arguments]    ${sheetName}     ${fileName}
+    Open Excel Document    ${fileName}    ${sheetName}
+    ${countcolumn}            Count Excel Column    ${sheetName}
+    ${countrow}         Count Excel Row      ${sheetName}
+    ${newcolumn}=        Evaluate        1
+    ${newrow}=        Evaluate        ${countrow}+1
+    Write Excel Cell    ${newrow}                ${newcolumn}       ${mobileNo_Migrate3BB}
+    ${newcolumn}=        Evaluate        ${newcolumn}+1
+    Write Excel Cell    ${newrow}                ${newcolumn}           ${json}
+    ${newcolumn}=        Evaluate        ${newcolumn}+1
+    ${resp_body_dm}=    Json.Dumps      ${orderRes_Subpartnerinfo}
+    Write Excel Cell    ${newrow}                ${newcolumn}       	${resp_body_dm}
+    Save Excel Document    ${fileName}
+    Close All Excel Documents
 
 
 
@@ -104,8 +122,13 @@ Replace The Variables In Request Body NEW ACCOUNT SFF
     ${xml_req}     Replace String    ${xml_req}    {{saNumber}}                             ${Empty}
     ${xml_req}     Replace String    ${xml_req}    {{accountCat}}                           ${random_ACCNT_CATEGORY}
     ${xml_req}     Replace String    ${xml_req}    {{accountSubCat}}                         ${random_ACCNT_SUB_CATEGORY}
-    ${xml_req}     Replace String    ${xml_req}    {{idCardType}}                         ID_CARD
-    ${xml_req}     Replace String    ${xml_req}    {{idCardNo}}                             ${thaiID}
+    IF    '${random_ACCNT_SUB_CATEGORY}' == 'THA'
+        ${xml_req}     Replace String    ${xml_req}    {{idCardType}}                         ID_CARD
+        ${xml_req}     Replace String    ${xml_req}    {{idCardNo}}                             ${thaiID}
+    ELSE IF    '${random_ACCNT_SUB_CATEGORY}' == 'FOR'
+        ${xml_req}     Replace String    ${xml_req}    {{idCardType}}                         PASSPORT
+        ${xml_req}     Replace String    ${xml_req}    {{idCardNo}}                             ${passport_id}
+    END
     ${xml_req}     Replace String    ${xml_req}    {{title}}                            นาย
     ${xml_req}     Replace String    ${xml_req}    {{firstName}}                         ${randomFirstName}
     ${xml_req}     Replace String    ${xml_req}    {{lastName}}                         ${randomLastName}
@@ -145,6 +168,26 @@ Replace The Variables In Request Body Migrate3BB
     ${json}     Replace String    ${json}    {{mobileNo_Migrate3BB}}            ${mobileNo_Migrate3BB}
     ${json}     Replace String    ${json}    {{baNumberFBB1ST}}                 ${orderRes_Newregister_1st["baNumber"]}
     ${json}     Replace String    ${json}    {{dayplusOrderdate2plusmin10}}     ${dayplusOrderdate2plusmin10}
+
+
+    Set Global Variable    ${json}
+    Log    ${json}
+
+
+Replace The Variables In Request Body SUBPARTNERINFO
+    ${json}     Get file          Variables/ReqSubPartnerinofo.json
+    ${json}     Replace String    ${json}    {{mobileno}}               ${mobileNo_Migrate3BB}
+    ${json}     Replace String    ${json}    {{timestamp}}               ${fctimestamp}
+
+
+    Set Global Variable    ${json}
+    Log    ${json}
+
+
+Replace The Variables In Request Body SUBPARTNERINFO NO SERVICE
+    ${json}     Get file          Variables/ReqSubPartnerinfoNoSV.json
+    ${json}     Replace String    ${json}    {{mobileno}}               ${mobileNo_Migrate3BB}
+    ${json}     Replace String    ${json}    {{timestamp}}               ${fctimestamp}
 
 
     Set Global Variable    ${json}
@@ -203,6 +246,15 @@ Query Database on Sky for check if RESEND FBB newregister 1st
 
 Query Database on SFF for GET mobileno Migrate3BB
     Connect Database on SFF PVT
+    ${SFF_query_task_MOBILENO}            Set Variable        SELECT '888' || sffadm.get_seq_no('SFF_SEQ_TBB') from dual
+    ${Result0fQuery}=        Query          ${SFF_query_task_MOBILENO}
+    log     ${Result0fQuery}[0][0]
+    Disconnect from database
+    Set Global Variable     ${mobileNo_Migrate3BB}      ${Result0fQuery}[0][0]
+
+
+Query Database on SFF for GET mobileno Migrate3BB SIT
+    Connect Database on SFF SIT
     ${SFF_query_task_MOBILENO}            Set Variable        SELECT '888' || sffadm.get_seq_no('SFF_SEQ_TBB') from dual
     ${Result0fQuery}=        Query          ${SFF_query_task_MOBILENO}
     log     ${Result0fQuery}[0][0]
@@ -314,10 +366,69 @@ CALL Migrate3BB
 
     Log    ${order}
 
+
+API SUBPARTNERINFO
+    ${resp}=        Request to Get Token        ${get_token_body}
+    Log  response=${resp.content}
+    ${resDict}=      Evaluate     json.loads("""${resp.content}""")    json
+    Log    ${resDict}
+    ${orderResp}=       REQUEST SUBPARTNERINFO       ${resDict["token"]}
+    log    ${orderResp}
+    ${resp_body}=   Evaluate  json.loads("""${orderResp.content}""")  json
+    ${resp_body_dm}=    Json.Dumps      ${resp_body}
+    Set Global Variable     ${result_resp}      ${resp_body_dm}
+    Set Global Variable     ${orderRes_Subpartnerinfo}      ${resp_body}
+    Log     ${resp_body_dm}
+    RETURN        ${resp_body}
+
+
+REQUEST SUBPARTNERINFO
+    [Arguments]     ${token}
+    ${url}=     set variable         https://test-sky.intra.ais:443/fbb/register/subscriber/v1/subscriberPartner
+    ${header}=      Create Dictionary      Content-Type=application/json;charset=utf-8              Authorization=${token}
+    Create Session    tmd    ${url}       verify=False     headers=${header}
+    log     ${json}
+    ${object}=  Evaluate  json.loads('''${json}''')  json
+    ${jsondm}=      Json.Dumps      ${object}
+    Log    ${jsondm}
+    ${resp}=         post on session        tmd     ${Empty}       data=${jsondm}       expected_status=any
+
+    Set Global Variable     ${status}       ${resp.status_code}
+    RETURN        ${resp}
+
+
+CALL SUBPARTNERINFO
+    GENERATE REQUEST ALL VALUE
+    Query Database on SFF for GET mobileno Migrate3BB SIT
+    Replace The Variables In Request Body SUBPARTNERINFO
+    ${order}=     API SUBPARTNERINFO
+    Write Data SUBPARTNERINFO To Excel      Sheet1      ExcelDATA/Subpartnerinfo.xlsx
+
+    Log    ${order}
+
+
+CALL SUBPARTNERINFO NO SERVICE
+    GENERATE REQUEST ALL VALUE
+    Query Database on SFF for GET mobileno Migrate3BB SIT
+    Replace The Variables In Request Body SUBPARTNERINFO NO SERVICE
+    ${order}=     API SUBPARTNERINFO
+    Write Data SUBPARTNERINFO To Excel      Sheet1      ExcelDATA/SubpartnerinfoNoSV.xlsx
+
+    Log    ${order}
+
+
 Random ThaiID
     ${thai_id}=      Generate Thai Citizen ID
     Set Global Variable     ${thaiID}       ${thai_id}
 
+
+Random PassportId
+    ${passport_id}=      Generate For Id
+    Set Global Variable     ${passport_id}       ${passport_id}
+
+Random FC TIMESTAMP
+    ${fctimestamp}=      Get Micro Time Stamp
+    Set Global Variable     ${fctimestamp}       ${fctimestamp}
 
 GET ALL DATE FORMAT
     ${date}=      Get Current Date    exclude_millis=no
@@ -371,6 +482,8 @@ Random Name
 GENERATE REQUEST ALL VALUE
     Random Name
     Random ThaiID
+    Random PassportId
+    Random FC TIMESTAMP
     GET ALL DATE FORMAT
 
 
@@ -485,10 +598,20 @@ OPEN MICKY
 
 
 MICKY GEN ACCOUNT SIT
-    FOR    ${counter}    IN RANGE    1    20
+    FOR    ${counter}    IN RANGE    1    100
             Generate NEW ACCOUNT SFF
     END
 
+SUBPARTNER GEN SIT
+    FOR    ${counter}    IN RANGE    1    80
+            CALL SUBPARTNERINFO
+    END
 
+SUBPARTNER NO SERVICE GENT SIT
+    FOR    ${counter}    IN RANGE    1    80
+            CALL SUBPARTNERINFO NO SERVICE
+    END
 
+test
+    Generate NEW ACCOUNT SFF
 
