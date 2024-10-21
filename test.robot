@@ -22,7 +22,6 @@ Resource         Repository/API/uri.robot
 Library          OperatingSystem
 #Library          pythonFile/decode.py
 Library          pythonFile/addMoreCode.py
-Library    RPA.MSGraph
 
 
 #Resource        ../../ResourcesNew/Variables/BTA_common_variable.robot
@@ -196,15 +195,44 @@ Replace The Variables In Request Body SUBPARTNERINFO NO SERVICE
 Connect Database on Sky IOT
     Connect To Database Using Custom Params     cx_Oracle     'skyfbbsa/fbb#sa22@10.252.53.34:1533/phxiotdb'
 
+Connect Database on Sky E2E
+    Connect To Database Using Custom Params     cx_Oracle     'skyfbbsa/fbb#sa22@10.252.53.34:1534/phxe2edb'
+
 Connect Database on SFF PVT
     Connect To Database Using Custom Params     cx_Oracle     'supanutm/supanutm@172.16.249.36:1536/SFFPVTDB'
 
 Connect Database on SFF SIT
     Connect To Database Using Custom Params     cx_Oracle     'supanutm/supanutm@172.16.249.77:1536/SFFSITDB'
 
-Query Database on Sky for check COMPLETE FBB newregister 1st
+Query Database on Sky IOT for check COMPLETE FBB newregister 1st
     [Arguments]     ${ordernoDB}
     Connect Database on Sky IOT
+    ${Sky_query_task_orderRefId}            Set Variable    SELECT STATE FROM FBBNEWCDDADM.FBBNEWCDD_INSTANCE fi WHERE id = '${ordernoDB}'
+    ${Result0fQuery}=        Query          ${Sky_query_task_orderRefId}
+    IF    "${Result0fQuery}[0][0]" == "Completed"
+        ${STATE}     set variable         ${True}
+    ELSE
+        ${STATE}     set variable         ${False}
+    END
+    Disconnect from database
+    RETURN        ${STATE}
+
+Query Database on Sky IOT for check COMPLETE MIGRATE3BB
+    [Arguments]     ${ordernoDB}
+    Connect Database on Sky IOT
+    ${Sky_query_task_orderRefId}            Set Variable    SELECT STATE FROM FBBNEWCDDADM.FBBNEWCDD_INSTANCE fi WHERE id = '${ordernoDB}'
+    ${Result0fQuery}=        Query          ${Sky_query_task_orderRefId}
+    IF    "${Result0fQuery}[0][0]" == "Completed"
+        ${STATE}     set variable         ${True}
+    ELSE
+        ${STATE}     set variable         ${False}
+    END
+    Disconnect from database
+    RETURN        ${STATE}
+
+Query Database on Sky E2E for check COMPLETE MIGRATE3BB
+    [Arguments]     ${ordernoDB}
+    Connect Database on Sky E2E
     ${Sky_query_task_orderRefId}            Set Variable    SELECT STATE FROM FBBNEWCDDADM.FBBNEWCDD_INSTANCE fi WHERE id = '${ordernoDB}'
     ${Result0fQuery}=        Query          ${Sky_query_task_orderRefId}
     IF    "${Result0fQuery}[0][0]" == "Completed"
@@ -316,7 +344,7 @@ CALL Newregister 1st fbb
     ${order}=     API FBB newregister 1st
     ${loopRESEND}=      Set Variable    ${True}
     WHILE    ${loopRESEND}
-            ${checkCOMPLETE}=      Query Database on Sky for check COMPLETE FBB newregister 1st       ${order["orderNo"]}
+            ${checkCOMPLETE}=      Query Database on Sky IOT for check COMPLETE FBB newregister 1st       ${order["orderNo"]}
             IF    ${checkCOMPLETE}
                 ${loopRESEND}=      Set Variable    ${False}
             ELSE
@@ -359,10 +387,22 @@ REQUEST Migrate3BB
 
 
 CALL Migrate3BB
+    [Arguments]     ${service_flag}
     GENERATE REQUEST ALL VALUE
-    Query Database on SFF for GET mobileno Migrate3BB
+#    Query Database on SFF for GET mobileno Migrate3BB
+    CALL SUBPARTNERINFO FOR MIGRATE     ${service_flag}
     Replace The Variables In Request Body Migrate3BB
     ${order}=     API Migrate3BB
+    ${loopRESEND}=      Set Variable    ${True}
+    WHILE    ${loopRESEND}
+            ${checkCOMPLETE}=      Query Database on Sky E2E for check COMPLETE MIGRATE3BB       ${order["orderNo"]}
+            IF    ${checkCOMPLETE}
+                ${loopRESEND}=      Set Variable    ${False}
+            ELSE
+                 ${checkRESEND}=   Query Database on Sky E2E for check COMPLETE MIGRATE3BB     ${order["orderNo"]}
+                 RUN KEYWORD IF    ${checkRESEND}    API RESEND FBB newregister 1st      ${order["orderNo"]}
+            END
+    END
 
     Log    ${order}
 
@@ -416,6 +456,16 @@ CALL SUBPARTNERINFO NO SERVICE
 
     Log    ${order}
 
+CALL SUBPARTNERINFO FOR MIGRATE
+    [Arguments]     ${service_flag}
+    GENERATE REQUEST ALL VALUE
+    Query Database on SFF for GET mobileno Migrate3BB SIT
+    IF    '${service_flag}' == 'Y'
+        Replace The Variables In Request Body SUBPARTNERINFO
+    ELSE
+        Replace The Variables In Request Body SUBPARTNERINFO NO SERVICE
+    END
+    ${order}=     API SUBPARTNERINFO
 
 Random ThaiID
     ${thai_id}=      Generate Thai Citizen ID
@@ -575,10 +625,18 @@ Generate NEW ACCOUNT SFF
 
 Test Newregister 1st fbb > Migrate3bb
     CALL Newregister 1st fbb
-    CALL Migrate3BB
+    CALL Migrate3BB         Y
     Log    ${orderRes_Newregister_1st}
     Log    ${orderRes_Migrate3BB}
 
+
+Test Newregister 1st fbb
+    CALL Newregister 1st fbb
+    Log    ${orderRes_Newregister_1st}
+
+Test Migrate3bb
+    CALL Migrate3BB         Y
+    Log    ${orderRes_Migrate3BB}
 
 Test query
     ${tes}=   Query Database on Sky for check if RESEND FBB newregister 1st      FS-lqxzx-240827104739552318620871
